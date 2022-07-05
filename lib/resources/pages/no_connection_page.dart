@@ -1,0 +1,69 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_app/bootstrap/app_helper.dart';
+import 'package:flutter_app/bootstrap/helpers.dart';
+import 'package:flutter_app/resources/widgets/buttons.dart';
+import 'package:flutter_app/resources/widgets/safearea_widget.dart';
+import 'package:nylo_framework/nylo_framework.dart';
+import 'package:woosignal/models/response/woosignal_app.dart';
+
+class NoConnectionPage extends StatefulWidget {
+  NoConnectionPage();
+
+  @override
+  _NoConnectionPageState createState() => _NoConnectionPageState();
+}
+
+class _NoConnectionPageState extends State<NoConnectionPage> {
+  _NoConnectionPageState();
+
+  @override
+  void initState() {
+    super.initState();
+    if (getEnv('APP_DEBUG') == true) {
+      NyLogger.error('WooCommerce site is not connected');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeAreaWidget(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                Icons.error_outline,
+                size: 100,
+                color: Colors.black54,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  trans("Oops, something went wrong"),
+                  style: Theme.of(context).textTheme.bodyText2,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              LinkButton(title: trans("Retry"), action: _retry),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  _retry() async {
+    WooSignalApp? wooSignalApp = await (appWooSignal((api) => api.getApp()));
+
+    if (wooSignalApp == null) {
+      showToastNotification(context,
+          title: trans("Oops"), description: trans("Retry later"));
+      return;
+    }
+
+    AppHelper.instance.appConfig = wooSignalApp;
+    Navigator.pushNamed(context, "/home");
+  }
+}

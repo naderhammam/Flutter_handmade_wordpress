@@ -1,0 +1,1 @@
+enum SymbolPositionType { left, right }
